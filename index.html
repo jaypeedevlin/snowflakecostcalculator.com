@@ -1,0 +1,94 @@
+<!--
+	If you're looking at this source code and something looks 🤨, please know that
+	my webdev skills are primitive and I used ChatGPT to help me with the interactivity.
+
+	Feel free to submit any issues or changes via https://github.com/jaypeedevlin/snowflakecostcalculator
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Snowflake Cost Calculator</title>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="style.css">
+	<script src="index.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="bg-dark text-white">
+	<div id="page" class="container wrapper flex-grow-1 hidden">
+		<h1 class="pt-4 mb-2 text-center text-sm smaller"><b>Snowflake</b> Cost Calculator</h1>
+		<p class="mt-2 mb-4 text-center text-secondary font-italic">Calculate the cost of your Snowflake query</p>
+		<form>
+			<div class="form-group row">
+				<label for="warehouse" class="col-sm-3 col-form-label">Choose a warehouse size:</label>
+				<div class="col-sm-9">
+					<select class="form-control" id="warehouse">
+						<option value="1">XSMALL</option>
+						<option value="2">SMALL</option>
+						<option value="4">MEDIUM</option>
+						<option value="8">LARGE</option>
+						<option value="16">XXLARGE</option>
+						<option value="32">XXXLARGE</option>
+						<option value="64">X4LARGE</option>
+						<option value="128">X5LARGE</option>
+						<option value="256">X6LARGE</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="minutes" class="col-sm-3 col-form-label">Enter the query runtime in minutes:</label>
+				<div class="col-sm-9">
+					<input type="number" class="form-control" id="minutes" min="1">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="cost" class="col-sm-3 col-form-label">Enter your Snowflake cost per credit:<a onclick="showModal()" href="#"><sup>?</sup></a></label>
+				<div class="col-sm-9">
+					<input type="number" class="form-control" id="cost" min="1">
+				</div>
+			</div>
+
+			<div id="myModal" class="modal">
+				<div class="modal-content">
+				  <span class="close">&times;</span>
+				  <p>Snowflake's default cost per credit is $2.00 but varies depending on cloud provider, region, Snowflake edition, and whether you have a contract in place.</p>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-sm-9 offset-sm-3 container">
+					<h3 id="result" class="mb-4"></h3>
+					<p class="text-secondary font-italic">Actual cost may vary based on factors such as concurrent queries and auto-suspend settings.</p>
+				</div>
+			</div>
+
+			
+			<script>
+			// Get the input elements and result element
+			var warehouse = document.getElementById("warehouse");
+			var minutes = document.getElementById("minutes");
+			var cost = document.getElementById("cost");
+			var result = document.getElementById("result");
+
+			// Calculate the result whenever the input values change
+			warehouse.addEventListener("input", calculate);
+			minutes.addEventListener("input", calculate);
+			cost.addEventListener("input", calculate);
+
+			window.onload = function() {
+				retrieveFromCookie();
+				document.getElementById("page").classList.remove("hidden");
+			};
+			</script>
+		</form>
+	</div>
+		<footer class="footer">
+		<div class="container text-center">
+		  <small class="text-muted">Made by <a href="https://joshdevlin.com">Josh Devlin</a>. This site has no affiliation with <a href="https://www.snowflake.com/">Snowflake Inc</a>.</small>
+		</div>
+	  </footer>
+	
+</body>
+</html>
