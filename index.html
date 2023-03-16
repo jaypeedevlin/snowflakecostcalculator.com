@@ -2,11 +2,24 @@
 	If you're looking at this source code and something looks 🤨, please know that
 	my webdev skills are primitive and I used ChatGPT to help me with the interactivity.
 
-	Feel free to submit any issues or changes via https://github.com/jaypeedevlin/snowflakecostcalculator
+	Feel free to submit any issues or changes via https://github.com/jaypeedevlin/snowflakecostcalculator.com
 -->
 <!DOCTYPE html>
 <html>
 <head>
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-V8EMQGLYJW"></script>
+	<script>
+		var host = window.location.hostname;
+		if(host != "localhost") {
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			gtag('config', 'G-V8EMQGLYJW');
+		}
+
+	</script>
 	<title>Snowflake Cost Calculator</title>
 	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -39,14 +52,14 @@
 			<div class="form-group row">
 				<label for="minutes" class="col-sm-3 col-form-label">Enter the query runtime in minutes:</label>
 				<div class="col-sm-9">
-					<input type="number" class="form-control" id="minutes" min="1">
+					<input type="number" class="form-control" id="minutes" inputmode="numeric" pattern="[0-9]*" min="1">
 				</div>
 			</div>
 
 			<div class="form-group row">
 				<label for="cost" class="col-sm-3 col-form-label">Enter your Snowflake cost per credit:<a onclick="showModal()" href="#"><sup>?</sup></a></label>
 				<div class="col-sm-9">
-					<input type="number" class="form-control" id="cost" min="1">
+					<input type="number" class="form-control" inputmode="numeric" pattern="[0-9]*" id="cost" min="0">
 				</div>
 			</div>
 
