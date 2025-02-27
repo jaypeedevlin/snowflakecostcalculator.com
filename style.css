@@ -1,16 +1,22 @@
+:root {
+    --snowflake-blue: #29b5e8;
+    --snowflake-pink: #d45b90;
+}
+
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100vh;
 }
 
 body {
-  margin-bottom: 50px; /* height of the footer */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 60px;
 }
 
 .wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+    flex: 1 0 auto;
 }
 
 .hidden {
@@ -18,55 +24,40 @@ body {
 }
 
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 50px; /* height of the footer */
+    margin-top: auto;
+    height: 60px;
 }
 
 h1 {
-    color: #29b5e8;
+    color: var(--snowflake-blue);
 }
 
 a {
-    color: #d45b90;
+    color: var(--snowflake-pink);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
 }
 
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1;
-  padding-top: 100px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+a:hover {
+    color: color-mix(in srgb, var(--snowflake-pink) 80%, white);
 }
 
-.modal-content {
-  position: relative;
-  background-color: #fefefe;
-  color: #000000;
-  margin: auto;
-  padding: 35px 20px 20px 20px;
-  border: 1px solid #888;
-  width: 80%;
+/* Remove default number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
-.close {
-  position: absolute;
-  color: #aaa;
-  top: 5px;
-  right: 5px;
-  font-size: 28px;
-  font-weight: bold;
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+/* Form styling */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--snowflake-blue);
+    box-shadow: 0 0 0 0.25rem rgba(41, 181, 232, 0.25);
 }
+
+/* Modal styling handled by Bootstrap */
