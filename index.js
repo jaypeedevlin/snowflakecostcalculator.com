@@ -23,10 +23,8 @@ class SnowflakeCalculator {
     }
 
     initializeApp() {
-        window.addEventListener('load', () => {
-            this.retrieveFromCookie();
-            document.getElementById('page').classList.remove('hidden');
-        });
+        this.retrieveFromCookie();
+        document.getElementById('page').classList.remove('hidden');
     }
 
     calculate() {
