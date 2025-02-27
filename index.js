@@ -1,61 +1,100 @@
-function calculate() {
-  var warehouseMultiplier = parseInt(warehouse.value);
-  var runtimeMinutes = parseInt(minutes.value);
-  var costPerCredit = parseFloat(cost.value);
-  var multiplierValue = parseInt(multiplier.value);
+class SnowflakeCalculator {
+    constructor() {
+        this.initializeElements();
+        this.attachEventListeners();
+        this.initializeApp();
+    }
 
-  // Set default values to 0 if input values are NaN
-  runtimeMinutes = isNaN(runtimeMinutes) ? 0 : runtimeMinutes;
-  costPerCredit = isNaN(costPerCredit) ? 0 : costPerCredit;
-  multiplierValue = isNaN(multiplierValue) ? null : multiplierValue;
+    initializeElements() {
+        this.form = document.getElementById('calculatorForm');
+        this.warehouse = document.getElementById('warehouse');
+        this.minutes = document.getElementById('minutes');
+        this.cost = document.getElementById('cost');
+        this.multiplier = document.getElementById('multiplier');
+        this.result = document.getElementById('result');
+    }
 
-  var multiplicationResult = warehouseMultiplier * runtimeMinutes / 60 * costPerCredit;
+    attachEventListeners() {
+        ['warehouse', 'minutes', 'cost', 'multiplier'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => this.calculate());
+        });
 
-  // Format the result as currency
-  var formattedResult = multiplicationResult.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
-  var totalResult = formattedResult;
+        this.form.addEventListener('submit', (e) => e.preventDefault());
+    }
 
-  // Check if multiplier is not null and calculate the total cost with the multiplier
-  if (multiplierValue !== null) {
-      var multipliedCost = multiplicationResult * multiplierValue;
-      var formattedMultipliedCost = multipliedCost.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
-      totalResult += "/run or " + formattedMultipliedCost + "/year";
-  }
+    initializeApp() {
+        window.addEventListener('load', () => {
+            this.retrieveFromCookie();
+            document.getElementById('page').classList.remove('hidden');
+        });
+    }
 
-  result.innerHTML = "Total cost: " + totalResult;
+    calculate() {
+        const warehouseMultiplier = parseInt(this.warehouse.value) || 0;
+        const runtimeMinutes = parseFloat(this.minutes.value) || 0;
+        const costPerCredit = parseFloat(this.cost.value) || 0;
+        const multiplierValue = parseInt(this.multiplier.value);
 
-  // Save current values to cookie
-  saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit);
+        const baseResult = warehouseMultiplier * runtimeMinutes / 60 * costPerCredit;
+        const formattedBase = this.formatCurrency(baseResult);
+
+        let resultText = `Total cost: ${formattedBase}`;
+
+        if (!isNaN(multiplierValue)) {
+            const annualCost = baseResult * multiplierValue;
+            resultText += `/run or ${this.formatCurrency(annualCost)}/year`;
+        }
+
+        this.result.innerHTML = resultText;
+        this.saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit);
+    }
+
+    formatCurrency(amount) {
+        return amount.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit) {
+        const oneYear = new Date(Date.now() + 31536000000).toUTCString();
+        const cookies = [
+            [`warehouseMultiplier=${warehouseMultiplier}`, oneYear],
+            [`runtimeMinutes=${runtimeMinutes}`, oneYear],
+            [`costPerCredit=${costPerCredit}`, oneYear]
+        ];
+
+        cookies.forEach(([value, expires]) => {
+            document.cookie = `${value};expires=${expires};path=/;SameSite=Strict`;
+        });
+    }
+
+    retrieveFromCookie() {
+        const cookies = Object.fromEntries(
+            document.cookie.split(';')
+                .map(cookie => cookie.trim().split('='))
+        );
+
+        this.warehouse.value = parseInt(cookies.warehouseMultiplier) || 1;
+        this.minutes.value = parseFloat(cookies.runtimeMinutes) || 60;
+        this.cost.value = parseFloat(cookies.costPerCredit) || 2.00;
+
+        this.calculate();
+    }
+
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        return parts.length === 2 ? parts.pop().split(';').shift() : null;
+    }
 }
 
-function saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit) {
-  // Save current values to cookie with a one-year expiration time
-  document.cookie = "warehouseMultiplier=" + warehouseMultiplier + ";expires=" + new Date(Date.now() + 31536000000).toUTCString() + ";path=/";
-  document.cookie = "runtimeMinutes=" + runtimeMinutes + ";expires=" + new Date(Date.now() + 31536000000).toUTCString() + ";path=/";
-  document.cookie = "costPerCredit=" + costPerCredit + ";expires=" + new Date(Date.now() + 31536000000).toUTCString() + ";path=/";
-}
-
-function retrieveFromCookie() {
-  // Retrieve saved values from cookie
-  var warehouseMultiplier = getCookie("warehouseMultiplier");
-  var runtimeMinutes = getCookie("runtimeMinutes");
-  var costPerCredit = getCookie("costPerCredit");
-
-  // Set input values to saved values
-  warehouse.value = warehouseMultiplier && !isNaN(parseInt(warehouseMultiplier)) ? parseInt(warehouseMultiplier) : 1;
-  minutes.value = runtimeMinutes && !isNaN(parseInt(runtimeMinutes)) ? parseInt(runtimeMinutes) : 60;
-  cost.value = costPerCredit && !isNaN(parseFloat(costPerCredit )) ? parseFloat(costPerCredit ) : "2.00";
-
-  // Calculate the result with saved values
-  calculate();
-}
-
-function getCookie(name) {
-  // Get cookie value by name
-  var value = "; " + document.cookie;
-  var parts = value.split("; " + name + "=");
-  if (parts.length == 2) return parts.pop().split(";").shift();
-}
+// Initialize the calculator when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new SnowflakeCalculator();
+});
 
 function showModal() {
   var modal = document.getElementById("myModal");
