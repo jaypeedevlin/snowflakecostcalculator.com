@@ -8,6 +8,9 @@ class SnowflakeCalculator {
     initializeElements() {
         this.form = document.getElementById('calculatorForm');
         this.warehouse = document.getElementById('warehouse');
+        this.isGen2 = document.getElementById('isGen2');
+        this.cloudProvider = document.getElementById('cloudProvider');
+        this.cloudProviderContainer = document.getElementById('cloudProviderContainer');
         this.minutes = document.getElementById('minutes');
         this.cost = document.getElementById('cost');
         this.multiplier = document.getElementById('multiplier');
@@ -15,8 +18,13 @@ class SnowflakeCalculator {
     }
 
     attachEventListeners() {
-        ['warehouse', 'minutes', 'cost', 'multiplier'].forEach(id => {
+        ['warehouse', 'minutes', 'cost', 'multiplier', 'cloudProvider'].forEach(id => {
             document.getElementById(id).addEventListener('input', () => this.calculate());
+        });
+
+        this.isGen2.addEventListener('change', () => {
+            this.cloudProviderContainer.style.display = this.isGen2.checked ? 'flex' : 'none';
+            this.calculate();
         });
 
         this.form.addEventListener('submit', (e) => e.preventDefault());
@@ -30,8 +38,22 @@ class SnowflakeCalculator {
     calculate() {
         const warehouseMultiplier = parseInt(this.warehouse.value) || 0;
         const runtimeMinutes = parseFloat(this.minutes.value) || 0;
-        const costPerCredit = parseFloat(this.cost.value) || 0;
+        let costPerCredit = parseFloat(this.cost.value) || 0;
         const multiplierValue = parseInt(this.multiplier.value);
+
+        // Apply Gen 2 warehouse cloud provider multiplier if checked
+        if (this.isGen2.checked) {
+            const cloudProviderValue = this.cloudProvider.value;
+            const cloudMultipliers = {
+                'aws': 1.35,
+                'gcp': 1.35,
+                'azure': 1.25
+            };
+            
+            if (cloudProviderValue in cloudMultipliers) {
+                costPerCredit *= cloudMultipliers[cloudProviderValue];
+            }
+        }
 
         const baseResult = warehouseMultiplier * runtimeMinutes / 60 * costPerCredit;
         const formattedBase = this.formatCurrency(baseResult);
@@ -44,7 +66,7 @@ class SnowflakeCalculator {
         }
 
         this.result.innerHTML = resultText;
-        this.saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit);
+        this.saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit, this.isGen2.checked, this.cloudProvider.value);
     }
 
     formatCurrency(amount) {
@@ -56,12 +78,14 @@ class SnowflakeCalculator {
         });
     }
 
-    saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit) {
+    saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit, isGen2, cloudProvider) {
         const oneYear = new Date(Date.now() + 31536000000).toUTCString();
         const cookies = [
             [`warehouseMultiplier=${warehouseMultiplier}`, oneYear],
             [`runtimeMinutes=${runtimeMinutes}`, oneYear],
-            [`costPerCredit=${costPerCredit}`, oneYear]
+            [`costPerCredit=${costPerCredit}`, oneYear],
+            [`isGen2=${isGen2}`, oneYear],
+            [`cloudProvider=${cloudProvider}`, oneYear]
         ];
 
         cookies.forEach(([value, expires]) => {
@@ -78,6 +102,15 @@ class SnowflakeCalculator {
         this.warehouse.value = parseInt(cookies.warehouseMultiplier) || 1;
         this.minutes.value = parseFloat(cookies.runtimeMinutes) || 60;
         this.cost.value = parseFloat(cookies.costPerCredit) || 2.00;
+        
+        if (cookies.isGen2 === 'true') {
+            this.isGen2.checked = true;
+            this.cloudProviderContainer.style.display = 'flex';
+            
+            if (cookies.cloudProvider) {
+                this.cloudProvider.value = cookies.cloudProvider;
+            }
+        }
 
         this.calculate();
     }
