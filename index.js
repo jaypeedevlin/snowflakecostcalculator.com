@@ -66,7 +66,7 @@ class SnowflakeCalculator {
         }
 
         this.result.innerHTML = resultText;
-        this.saveToCookie(warehouseMultiplier, runtimeMinutes, costPerCredit, this.isGen2.checked, this.cloudProvider.value);
+        this.saveToCookie(warehouseMultiplier, runtimeMinutes, parseFloat(this.cost.value) || 0, this.isGen2.checked, this.cloudProvider.value);
     }
 
     formatCurrency(amount) {
